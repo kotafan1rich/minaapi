@@ -9,8 +9,10 @@ POSTGRES_INDEXES_NAMING_CONVENTION = {
     "pk": "%(table_name)s_pkey",
 }
 
+metadata = MetaData(naming_convention=POSTGRES_INDEXES_NAMING_CONVENTION)
+
 Base = declarative_base(
-    metadata=MetaData(naming_convention=POSTGRES_INDEXES_NAMING_CONVENTION)
+    metadata=metadata
 )
 
 

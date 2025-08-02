@@ -1,4 +1,10 @@
-from fastapi import FastAPI
-
+from fastapi import APIRouter, FastAPI
+from src.promos.router import promo_router
 
 app = FastAPI(title="MinatovarAPI")
+
+api_router = APIRouter(prefix="/api")
+
+api_router.include_router(promo_router)
+
+app.include_router(api_router)

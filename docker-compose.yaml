@@ -1,5 +1,7 @@
 services:
   backend:
+    volumes:
+      - ./backend/src:/app/src
     container_name: backend
     build: ./backend
     command: ["/app/docker/api.sh"]
@@ -69,6 +71,26 @@ services:
       - "5431:5432"
     expose:
       - 5431
+  postgres_test:
+    container_name: postgres_test
+    image: postgres:17-bullseye
+    volumes:
+      - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./postgres/init-user-db.sql:/docker-entrypoint-initdb.d/init-user-db.sql
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_PASSWORD=2007Fj2007
+      - POSTGRES_HOST_AUTH_METHOD=scram-sha-256
+      - POSTGRES_DB=test
+    command: postgres -c hba_file=/etc/postgresql/pg_hba.conf -c config_file=/etc/postgresql/postgresql.conf 
+
+    networks:
+      - mina_net
+    ports:
+      - "5430:5432"
+    expose:
+      - 5430
   
   backup:
     build: ./backup
