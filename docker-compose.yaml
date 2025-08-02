@@ -1,0 +1,93 @@
+services:
+  backend:
+    container_name: backend
+    build: ./backend
+    command: ["/app/docker/api.sh"]
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - mina_net
+    env_file:
+      - .env-non-dev
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.50"
+    ports:
+      - "8080:8080"
+    expose:
+      - 8080
+
+  redis:
+    image: redis:7.4.1-alpine
+    container_name: redis
+
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis/users.acl:/usr/local/etc/redis/users.acl
+
+    environment:
+      - REDIS_PASSWORD=2007Fj2007
+      - REDIS_USER=minatovar
+      - REDIS_USER_PASSWORD=2007Fj2007
+    command: redis-server /usr/local/etc/redis/redis.conf --aclfile /usr/local/etc/redis/users.acl  
+    networks:
+      - mina_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "2007Fj2007", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    container_name: postgres
+    image: postgres:17-bullseye
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./postgres/init-user-db.sql:/docker-entrypoint-initdb.d/init-user-db.sql
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_PASSWORD=2007Fj2007
+      - POSTGRES_HOST_AUTH_METHOD=scram-sha-256
+    command: postgres -c hba_file=/etc/postgresql/pg_hba.conf -c config_file=/etc/postgresql/postgresql.conf 
+
+    networks:
+      - mina_net
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    ports:
+      - "5431:5432"
+    expose:
+      - 5431
+  
+  backup:
+    build: ./backup
+    container_name: postgres_backup
+    depends_on:
+      - postgres
+    volumes:
+      - ./backup/backups:/backups
+    networks:
+      - mina_net
+    environment:
+      - MAX_BACKUPS=2
+    env_file:
+      - .env-non-dev
+
+networks:
+  mina_net:
+
+volumes:
+  redis_data:
+  db_data:
+  postgres_backups:
