@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from src.db.session import get_db
 from src.users.dao import UserDAO
@@ -19,3 +19,13 @@ async def create_user(data: RequestUser, db_session=Depends(get_db)):
     created_user = await user_dao.create_user(**data_dict)
     if created_user:
         return ResponseUser.model_validate(created_user, from_attributes=True)
+
+
+@user_router.get("/get_user", response_model=ResponseUser)
+async def get_user(id: int, db_session=Depends(get_db)):
+    user_dao = UserDAO(db_session=db_session)
+    user = await user_dao.get_user(id=id)
+    if user:
+        return ResponseUser.model_validate(user, from_attributes=True)
+    else:
+        raise HTTPException(status_code=404, detail="User not found")
