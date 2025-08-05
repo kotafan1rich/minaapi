@@ -1,12 +1,14 @@
 from __future__ import annotations
+
 from datetime import timedelta
 from functools import wraps
 from typing import Any, Callable
 
-from redis.asyncio import Redis
-
 from src.cache.serialization import AbstractSerializer, PickleSerializer
 from src.db.connection import redis_client
+
+from redis.asyncio import Redis
+from redis.exceptions import ConnectionError
 
 DEFAULT_TTL = 30
 
@@ -66,19 +68,25 @@ def cached(
             key = f"{namespace}:{func.__module__}:{func.__name__}:{key}"
 
             # Check if the key is in the cache
-            cached_value = await cache.get(key)
-            if cached_value is not None:
-                return serializer.deserialize(cached_value)
+            try:
+                cached_value = await cache.get(key)
+                if cached_value is not None:
+                    return serializer.deserialize(cached_value)
+            except ConnectionError:
+                pass
 
             # If not in cache, call the original function
             result = await func(*args, **kwargs)
 
             # Store the result in Redis
-            await set_redis_value(
-                key=key,
-                value=serializer.serialize(result),
-                ttl=ttl,
-            )
+            try:
+                await set_redis_value(
+                    key=key,
+                    value=serializer.serialize(result),
+                    ttl=ttl,
+                )
+            except ConnectionError:
+                pass
             return result
 
         return wrapper

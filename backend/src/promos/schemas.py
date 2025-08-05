@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from src.schemas import BaseResponseSchema
 
 
-class ResponsePromo(BaseModel):
+class ResponsePromo(BaseResponseSchema):
     id: int
     description: str
