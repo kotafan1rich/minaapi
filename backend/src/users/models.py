@@ -20,4 +20,4 @@ class User(BaseModel):
         foreign_keys="Referral.id_to",
         back_populates="referree",
     )
-    # orders = relationship("Order", back_populates="user")
+    orders = relationship("Order", back_populates="user")

@@ -75,6 +75,7 @@ services:
     container_name: postgres_test
     image: postgres:17-bullseye
     volumes:
+      - db_test_data:/var/lib/postgresql/data
       - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf
       - ./postgres/init-user-db.sql:/docker-entrypoint-initdb.d/init-user-db.sql
@@ -83,8 +84,7 @@ services:
       - POSTGRES_PASSWORD=2007Fj2007
       - POSTGRES_HOST_AUTH_METHOD=scram-sha-256
       - POSTGRES_DB=test
-    command: postgres -c hba_file=/etc/postgresql/pg_hba.conf -c config_file=/etc/postgresql/postgresql.conf 
-
+    command: postgres -c hba_file=/etc/postgresql/pg_hba.conf -c config_file=/etc/postgresql/postgresql.conf
     networks:
       - mina_net
     ports:
@@ -112,4 +112,5 @@ networks:
 volumes:
   redis_data:
   db_data:
+  db_test_data:
   postgres_backups:
