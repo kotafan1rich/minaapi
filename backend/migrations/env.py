@@ -2,12 +2,13 @@ from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
+from src.admins.models import Admin  # noqa: F401
 from src.config import get_alembic_db_url
 from src.db.models import metadata
+from src.orders.models import Order, OrderStatus, OrderTypeItem  # noqa: F401
 from src.promos.models import Promo  # noqa: F401
-from src.users.models import User  # noqa: F401
 from src.referrals.models import Referral  # noqa: F401
-from src.orders.models import OrderTypeItem, OrderStatus, Order  # noqa: F401
+from src.users.models import User  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -21,3 +21,4 @@ class User(BaseModel):
         back_populates="referree",
     )
     orders = relationship("Order", back_populates="user")
+    admin = relationship("Admin", back_populates="user", uselist=False)

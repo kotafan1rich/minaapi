@@ -24,13 +24,13 @@ class UserDAO(BaseDAO):
             await self.db_session.commit()
             return new_user
 
-    async def update_user(self, id: int, **kwargs) -> int | None:
+    async def update_user(self, id: int, **kwargs) -> User | None:
         async with self.db_session.begin():
             query = (
                 update(User)
                 .where(User.id == id)
                 .values(kwargs)
-                .returning(User.id)
+                .returning(User)
             )
             res = await self.db_session.execute(query)
             await self.db_session.commit()

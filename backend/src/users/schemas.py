@@ -13,6 +13,9 @@ class RequestUser(BaseUserSchema):
     password: str
 
 
+class RequestUpdateUser(BaseUserSchema):
+    password: str | None = None
+
 class ResponseUser(BaseResponseSchema, BaseUserSchema):
     id: int
     hashed_password: str
