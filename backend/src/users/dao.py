@@ -42,8 +42,14 @@ class UserDAO(BaseDAO):
             res = await self.db_session.execute(query)
             return res.scalar()
 
-    async def get_user(self, id: int) -> User | None:
+    async def get_user_by_id(self, id: int) -> User | None:
         async with self.db_session.begin():
             query = select(User).where(User.id == id)
             res = await self.db_session.execute(query)
-            return res.scalar()
+            return res.scalar_one_or_none()
+    
+    async def get_user_by_email(self, email: str) -> User | None:
+        async with self.db_session.begin():
+            query = select(User).where(User.email == email)
+            res = await self.db_session.execute(query)
+            return res.scalar_one_or_none()

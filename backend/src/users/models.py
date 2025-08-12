@@ -7,7 +7,7 @@ class User(BaseModel):
     id = Column(BIGINT, primary_key=True, autoincrement=True)
     tg_id = Column(BIGINT, unique=True, nullable=True)
     tg_username = Column(String(255), nullable=True)
-    email = Column(String(255), nullable=True)
+    email = Column(String(255), nullable=True, unique=True)
     hashed_password = Column(String(255), nullable=False)
 
     referrals_from = relationship(
