@@ -28,6 +28,6 @@ class ReferralDAO(BaseDAO):
     async def delete_referral(self, id: int) -> Referral | None:
         async with self.db_session.begin():
             query = delete(Referral).where(Referral.id == id).returning(Referral)
-            deleted_Referral = await self.db_session.execute(query)
+            deleted_referral = await self.db_session.execute(query)
             await self.db_session.commit()
-            return deleted_Referral.scalar_one_or_none()
+            return deleted_referral.scalar_one_or_none()

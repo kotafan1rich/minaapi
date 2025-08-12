@@ -26,12 +26,7 @@ class UserDAO(BaseDAO):
 
     async def update_user(self, id: int, **kwargs) -> User | None:
         async with self.db_session.begin():
-            query = (
-                update(User)
-                .where(User.id == id)
-                .values(kwargs)
-                .returning(User)
-            )
+            query = update(User).where(User.id == id).values(kwargs).returning(User)
             res = await self.db_session.execute(query)
             await self.db_session.commit()
             return res.scalar_one_or_none()
@@ -47,16 +42,16 @@ class UserDAO(BaseDAO):
             query = select(User).where(User.id == id)
             res = await self.db_session.execute(query)
             return res.scalar_one_or_none()
-    
+
     async def get_user_by_email(self, email: str) -> User | None:
         async with self.db_session.begin():
             query = select(User).where(User.email == email)
             res = await self.db_session.execute(query)
             return res.scalar_one_or_none()
-    
+
     async def delete_user(self, id: int) -> User | None:
         async with self.db_session.begin():
             query = delete(User).where(User.id == id).returning(User)
-            deleted_User = await self.db_session.execute(query)
+            deleted_user = await self.db_session.execute(query)
             await self.db_session.commit()
-            return deleted_User.scalar_one_or_none()
+            return deleted_user.scalar_one_or_none()
