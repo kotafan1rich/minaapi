@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from src.admins.models import Admin
 from src.db.dao import BaseDAO
 
@@ -22,3 +22,10 @@ class AdminDAO(BaseDAO):
             query = select(Admin).where(Admin.id == user_id)
             result = await self.db_session.execute(query)
             return result.scalar_one_or_none()
+    
+    async def delete_admin(self, id: int) -> Admin | None:
+        async with self.db_session.begin():
+            query = delete(Admin).where(Admin.id == id).returning(Admin)
+            deleted_admin = await self.db_session.execute(query)
+            await self.db_session.commit()
+            return deleted_admin.scalar_one_or_none()

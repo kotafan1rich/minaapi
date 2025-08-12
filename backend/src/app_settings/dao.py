@@ -1,4 +1,4 @@
-from sqlalchemy import exists, select, update
+from sqlalchemy import delete, exists, select, update
 from src.app_settings.models import AppSetting
 from src.cache.redis import build_key, cached
 from src.db.dao import BaseDAO
@@ -36,3 +36,10 @@ class AppSettingDAO(BaseDAO):
             query = select(AppSetting).where(AppSetting.key == key)
             res = await self.db_session.execute(query)
             return res.scalar_one_or_none()
+    
+    async def delete_param(self, id: int) -> AppSetting | None:
+        async with self.db_session.begin():
+            query = delete(AppSetting).where(AppSetting.id == id).returning(AppSetting)
+            deleted_AppSetting = await self.db_session.execute(query)
+            await self.db_session.commit()
+            return deleted_AppSetting.scalar_one_or_none()

@@ -1,4 +1,4 @@
-from sqlalchemy import exists, select
+from sqlalchemy import delete, exists, select
 from src.cache.redis import build_key, cached
 from src.db.dao import BaseDAO
 from src.referrals.models import Referral
@@ -24,3 +24,10 @@ class ReferralDAO(BaseDAO):
             query = select(Referral.id_to).where(Referral.id_from == id_from)
             res = await self.db_session.execute(query)
             return res.scalars().all()
+
+    async def delete_referral(self, id: int) -> Referral | None:
+        async with self.db_session.begin():
+            query = delete(Referral).where(Referral.id == id).returning(Referral)
+            deleted_Referral = await self.db_session.execute(query)
+            await self.db_session.commit()
+            return deleted_Referral.scalar_one_or_none()

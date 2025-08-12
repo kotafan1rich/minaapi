@@ -7,6 +7,7 @@ from src.referrals.schemas import ListReferrals, ResponseReferral
 
 referral_router = APIRouter(prefix="/referrals", tags=["Referrals"])
 
+
 @referral_router.post("/create_referral", response_model=ResponseReferral)
 async def create_referral(id_from: int, id_to: int, db_session=Depends(get_db)):
     referral_dao = ReferralDAO(db_session=db_session)
@@ -15,10 +16,17 @@ async def create_referral(id_from: int, id_to: int, db_session=Depends(get_db)):
         return ResponseReferral.model_validate(created_referral, from_attributes=True)
 
 
+@referral_router.delete("/delete_referral", response_model=ResponseReferral)
+async def delete_referral(id: int, db_session=Depends(get_db)):
+    referral_dao = ReferralDAO(db_session=db_session)
+    deleted_referral = await referral_dao.delete_referral(id=id)
+    if deleted_referral:
+        return ResponseReferral.model_validate(deleted_referral, from_attributes=True)
+
+
 @referral_router.get("/get_referrals", response_model=ListReferrals)
 async def get_referrals(id_from: int, db_session=Depends(get_db)):
     referral_dao = ReferralDAO(db_session=db_session)
-    result =await referral_dao.get_refferals(id_from=id_from)
+    result = await referral_dao.get_refferals(id_from=id_from)
     if result:
         return ListReferrals(result=result)
-

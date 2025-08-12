@@ -18,16 +18,16 @@ class PromoDAO(BaseDAO):
             self.db_session.add(new_promo)
             await self.db_session.commit()
             return new_promo
-    
+
     async def get_promo(self, id: int) -> Promo | None:
         async with self.db_session.begin():
             query = select(Promo).where(Promo.id == id)
             result = await self.db_session.execute(query)
             return result.scalar_one_or_none()
 
-    async def delete_promo(self, id: int) -> int:
+    async def delete_promo(self, id: int) -> Promo | None:
         async with self.db_session.begin():
-            query = delete(Promo).where(Promo.id == id)
-            await self.db_session.execute(query)
+            query = delete(Promo).where(Promo.id == id).returning(Promo)
+            deleted_promo = await self.db_session.execute(query)
             await self.db_session.commit()
-            return id
+            return deleted_promo.scalar_one_or_none()

@@ -1,5 +1,5 @@
 from pydantic import EmailStr
-from sqlalchemy import exists, select, update
+from sqlalchemy import delete, exists, select, update
 
 from src.db.dao import BaseDAO
 from src.users.models import User
@@ -53,3 +53,10 @@ class UserDAO(BaseDAO):
             query = select(User).where(User.email == email)
             res = await self.db_session.execute(query)
             return res.scalar_one_or_none()
+    
+    async def delete_user(self, id: int) -> User | None:
+        async with self.db_session.begin():
+            query = delete(User).where(User.id == id).returning(User)
+            deleted_User = await self.db_session.execute(query)
+            await self.db_session.commit()
+            return deleted_User.scalar_one_or_none()

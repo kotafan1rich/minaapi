@@ -15,6 +15,14 @@ async def create_setting(key: str, value: float, db_session=Depends(get_db)):
         return ResponseSetting.model_validate(created_setting, from_attributes=True)
 
 
+@app_setting_router.delete("/delete_setting", response_model=ResponseSetting)
+async def delete_setting(id: int, db_session=Depends(get_db)):
+    settings_dao = AppSettingDAO(db_session=db_session)
+    deleted_setting = await settings_dao.delete_param(id=id)
+    if deleted_setting:
+        return ResponseSetting.model_validate(deleted_setting, from_attributes=True)
+
+
 @app_setting_router.get("/get_setting", response_model=ResponseSetting)
 async def get_setting(key: str, db_session=Depends(get_db)):
     setting_dao = AppSettingDAO(db_session=db_session)

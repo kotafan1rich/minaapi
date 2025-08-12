@@ -19,6 +19,14 @@ async def create_promo(description: str, db_session=Depends(get_db)):
         raise HTTPException(status_code=422, detail="Not valide description")
 
 
+@promo_router.delete("/delete_promo", response_model=ResponsePromo)
+async def delete_promo(id: int, db_session=Depends(get_db)):
+    promo_dao = PromoDAO(db_session=db_session)
+    deleted_promo = await promo_dao.delete_promo(id=id)
+    if deleted_promo:
+        return ResponsePromo.model_validate(deleted_promo, from_attributes=True)
+
+
 @promo_router.get(path="/get_promo", response_model=ResponsePromo)
 async def get_promo(id: int, db_session=Depends(get_db)):
     promo_dao = PromoDAO(db_session=db_session)

@@ -17,6 +17,14 @@ async def create_user(data: RequestUser, db_session=Depends(get_db)):
         return ResponseUser.model_validate(created_user, from_attributes=True)
 
 
+@user_router.delete("/delete_user", response_model=ResponseUser)
+async def delete_user(id: int, db_session=Depends(get_db)):
+    user_dao = UserDAO(db_session=db_session)
+    deleted_user = await user_dao.delete_user(id=id)
+    if deleted_user:
+        return ResponseUser.model_validate(deleted_user, from_attributes=True)
+
+
 @user_router.get("/get_user", response_model=ResponseUser)
 async def get_user(id: int, db_session=Depends(get_db)):
     user_dao = UserDAO(db_session=db_session)
