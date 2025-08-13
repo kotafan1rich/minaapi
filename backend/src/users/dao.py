@@ -1,6 +1,7 @@
+from typing import List
+
 from pydantic import EmailStr
 from sqlalchemy import delete, exists, select, update
-
 from src.db.dao import BaseDAO
 from src.users.models import User
 
@@ -48,6 +49,12 @@ class UserDAO(BaseDAO):
             query = select(User).where(User.email == email)
             res = await self.db_session.execute(query)
             return res.scalar_one_or_none()
+
+    async def get_all_users(self, offset: int, limit: int) -> List[User | None]:
+        async with self.db_session.begin():
+            query = select(User).offset(offset).limit(limit)
+            result = await self.db_session.execute(query)
+            return result.scalars().all()
 
     async def delete_user(self, id: int) -> User | None:
         async with self.db_session.begin():

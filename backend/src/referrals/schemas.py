@@ -8,4 +8,4 @@ class ResponseReferral(BaseResponseSchema):
 
 
 class ListReferrals(BaseModel):
-    result: list[int]
+    results: list[int]

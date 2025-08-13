@@ -1,13 +1,22 @@
 from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from src.admins.router import admin_router
 from src.app_settings.router import app_setting_router
+from src.auth.router import auth_router
 from src.orders.router import order_router
 from src.promos.router import promo_router
 from src.referrals.router import referral_router
 from src.users.router import user_router
-from src.auth.router import auth_router
 
 app = FastAPI(title="MinatovarAPI")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Для продакшена укажите конкретные домены
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 api_router = APIRouter(prefix="/api")
 

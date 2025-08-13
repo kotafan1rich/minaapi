@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import BaseModel, EmailStr
 
 from src.schemas import BaseResponseSchema
@@ -16,6 +17,11 @@ class RequestUser(BaseUserSchema):
 class RequestUpdateUser(BaseUserSchema):
     password: str | None = None
 
+
 class ResponseUser(BaseResponseSchema, BaseUserSchema):
     id: int
     hashed_password: str
+
+
+class ListUsers(BaseModel):
+    results: List[ResponseUser]

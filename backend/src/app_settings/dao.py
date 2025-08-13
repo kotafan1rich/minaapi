@@ -1,3 +1,4 @@
+from typing import List
 from sqlalchemy import delete, exists, select, update
 from src.app_settings.models import AppSetting
 from src.cache.redis import build_key, cached
@@ -10,6 +11,12 @@ class AppSettingDAO(BaseDAO):
             query = select(exists().where(AppSetting.key == key))
             res = await self.db_session.execute(query)
             return res.scalar()
+    
+    async def get_all_params(self, offset: int, limit: int) -> List[AppSetting | None]:
+        async with self.db_session.begin():
+            query = select(AppSetting).offset(offset=offset).limit(limit=limit)
+            admins = await self.db_session.execute(query)
+            return admins.scalars().all()
 
     async def update_param(self, key: str, value: float) -> AppSetting | None:
         async with self.db_session.begin():

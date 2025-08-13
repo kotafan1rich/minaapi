@@ -1,3 +1,4 @@
+from typing import List
 from sqlalchemy import delete, select
 from src.cache.redis import build_key, cached
 from src.db.dao import BaseDAO
@@ -6,9 +7,15 @@ from src.promos.models import Promo
 
 class PromoDAO(BaseDAO):
     @cached(key_builder=lambda db_session: build_key("promo"))
-    async def get_all_promos(self) -> list[Promo]:
+    async def get_all_promos(self) -> List[Promo | None]:
         async with self.db_session.begin():
             query = select(Promo).order_by(Promo.id)
+            result = await self.db_session.execute(query)
+            return result.scalars().all()
+    
+    async def get_all_promos_no_cache(self, offset: int, limit: int) -> List[Promo | None]:
+        async with self.db_session.begin():
+            query = select(Promo).offset(offset).limit(limit).order_by(Promo.id)
             result = await self.db_session.execute(query)
             return result.scalars().all()
 

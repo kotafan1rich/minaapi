@@ -22,4 +22,4 @@ class RequestOrder(OrderBase): ...
 
 
 class ListOrders(BaseModel):
-    result: list[ResponseOrder]
+    results: list[ResponseOrder]

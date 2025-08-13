@@ -1,3 +1,4 @@
+from typing import List
 from sqlalchemy import delete, exists, select
 from src.cache.redis import build_key, cached
 from src.db.dao import BaseDAO
@@ -24,6 +25,12 @@ class ReferralDAO(BaseDAO):
             query = select(Referral.id_to).where(Referral.id_from == id_from)
             res = await self.db_session.execute(query)
             return res.scalars().all()
+    
+    async def get_all_referrals(self, offset: int, limit: int) -> List[Referral | None]:
+        async with self.db_session.begin():
+            query = select(Referral).offset(offset).limit(limit)
+            result = await self.db_session.execute(query)
+            return result.scalars().all()
 
     async def delete_referral(self, id: int) -> Referral | None:
         async with self.db_session.begin():

@@ -1,3 +1,4 @@
+from typing import List
 from sqlalchemy import delete, select, update
 from src.db.dao import BaseDAO
 from src.orders.models import Order, OrderStatus
@@ -11,7 +12,13 @@ class OrderDAO(BaseDAO):
             await self.db_session.commit()
             return order
 
-    async def get_completed_orders_for_user(self, user_id: int) -> list[Order]:
+    async def get_all_orders(self, offset: int, limit: int) -> List[Order | None]:
+        async with self.db_session.begin():
+            query = select(Order).offset(offset=offset).limit(limit=limit)
+            admins = await self.db_session.execute(query)
+            return admins.scalars().all()
+
+    async def get_completed_orders_for_user(self, user_id: int) -> List[Order]:
         async with self.db_session.begin():
             query = (
                 select(Order.price_rub)
