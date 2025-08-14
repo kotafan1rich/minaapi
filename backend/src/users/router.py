@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from src.auth.utils import get_hash
 from src.db.session import get_db
 from src.users.dao import UserDAO
+from src.users.exceptions import EmailIdTgAlreadyExistsError
 from src.users.schemas import ListUsers, RequestUpdateUser, RequestUser, UserSchema
 from src.users.utils import _create_user
 
@@ -10,27 +11,33 @@ user_router = APIRouter(prefix="/users", tags=["Users"])
 
 @user_router.post("/create_user")
 async def create_user(data: RequestUser, db_session=Depends(get_db)) -> UserSchema:
-    created_user = await _create_user(data=data, db_session=db_session)
-    if created_user:
+    try:
+        created_user = await _create_user(data=data, db_session=db_session)
         return UserSchema.model_validate(created_user)
+    except EmailIdTgAlreadyExistsError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=e.error_mes)
 
 
 @user_router.delete("/delete_user")
 async def delete_user(id: int, db_session=Depends(get_db)) -> UserSchema:
     user_dao = UserDAO(db_session=db_session)
     deleted_user = await user_dao.delete_user(id=id)
-    if deleted_user:
-        return UserSchema.model_validate(deleted_user)
+    if not deleted_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+    return UserSchema.model_validate(deleted_user)
 
 
 @user_router.get("/get_user")
 async def get_user(id: int, db_session=Depends(get_db)) -> UserSchema:
     user_dao = UserDAO(db_session=db_session)
     user = await user_dao.get_user_by_id(id=id)
-    if user:
-        return UserSchema.model_validate(user)
-    else:
-        raise HTTPException(status_code=404, detail="User not found")
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+    return UserSchema.model_validate(user)
 
 
 @user_router.get("/get_users_list")
@@ -58,6 +65,6 @@ async def update_user(
         data_dict["hashed_password"] = hashed_password
     data_dict.pop("password")
     data_dict = {key: val for key, val in data_dict.items() if val}
-    created_user = await user_dao.update_user(id=id, **data_dict)
-    if created_user:
-        return UserSchema.model_validate(created_user)
+    updated_user = await user_dao.update_user(id=id, **data_dict)
+    if updated_user:
+        return UserSchema.model_validate(updated_user)

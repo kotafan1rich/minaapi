@@ -2,6 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.db.session import get_db
 from src.referrals.dao import ReferralDAO
+from src.referrals.exceptions import (
+    CreateReferralException,
+    UserAlreadyHasReferralsException,
+)
 from src.referrals.schemas import ListReferrals, ReferralSchema
 
 
@@ -13,9 +17,20 @@ async def create_referral(
     id_from: int, id_to: int, db_session=Depends(get_db)
 ) -> ReferralSchema:
     referral_dao = ReferralDAO(db_session=db_session)
-    created_referral = await referral_dao.create_referral(id_from=id_from, id_to=id_to)
-    if created_referral:
+    try:
+        created_referral = await referral_dao.create_referral(
+            id_from=id_from, id_to=id_to
+        )
         return ReferralSchema.model_validate(created_referral)
+    except CreateReferralException:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Id_from or id_to doesn't exists",
+        )
+    except UserAlreadyHasReferralsException:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="This user can't be a referral"
+        )
 
 
 @referral_router.delete("/delete_referral")

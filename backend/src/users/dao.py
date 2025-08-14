@@ -2,7 +2,9 @@ from typing import List
 
 from pydantic import EmailStr
 from sqlalchemy import delete, exists, select, update
+from sqlalchemy.exc import IntegrityError
 from src.db.dao import BaseDAO
+from src.users.exceptions import EmailIdTgAlreadyExistsError
 from src.users.models import User
 
 
@@ -22,14 +24,20 @@ class UserDAO(BaseDAO):
                 hashed_password=hashed_password,
             )
             self.db_session.add(new_user)
-            await self.db_session.commit()
+            try:
+                await self.db_session.commit()
+            except IntegrityError:
+                raise EmailIdTgAlreadyExistsError(tg_id=tg_id, email=email)
             return new_user
 
     async def update_user(self, id: int, **kwargs) -> User | None:
         async with self.db_session.begin():
             query = update(User).where(User.id == id).values(kwargs).returning(User)
             res = await self.db_session.execute(query)
-            await self.db_session.commit()
+            try:
+                await self.db_session.commit()
+            except IntegrityError:
+                raise EmailIdTgAlreadyExistsError(tg_id=kwargs.get("tg_id"), email=kwargs.get("email"))
             return res.scalar_one_or_none()
 
     async def user_exists(self, id: int) -> bool:
