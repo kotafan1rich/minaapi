@@ -14,7 +14,7 @@ class OrderBase(BaseModel):
     type_item: OrderTypeItem
 
 
-class ResponseOrder(BaseResponseSchema, OrderBase):
+class OrderSchema(BaseResponseSchema, OrderBase):
     id: int
 
 
@@ -22,4 +22,4 @@ class RequestOrder(OrderBase): ...
 
 
 class ListOrders(BaseModel):
-    results: list[ResponseOrder]
+    results: list[OrderSchema]

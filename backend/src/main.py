@@ -1,4 +1,4 @@
-from fastapi import APIRouter, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.admins.router import admin_router
 from src.app_settings.router import app_setting_router
@@ -8,7 +8,7 @@ from src.promos.router import promo_router
 from src.referrals.router import referral_router
 from src.users.router import user_router
 
-app = FastAPI(title="MinatovarAPI")
+app = FastAPI(title="MinatovarAPI", root_path="/api")
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,14 +18,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-api_router = APIRouter(prefix="/api")
-
-api_router.include_router(promo_router)
-api_router.include_router(user_router)
-api_router.include_router(referral_router)
-api_router.include_router(order_router)
-api_router.include_router(admin_router)
-api_router.include_router(app_setting_router)
-api_router.include_router(auth_router)
-
-app.include_router(api_router)
+app.include_router(promo_router)
+app.include_router(user_router)
+app.include_router(referral_router)
+app.include_router(order_router)
+app.include_router(admin_router)
+app.include_router(app_setting_router)
+app.include_router(auth_router)

@@ -18,10 +18,10 @@ class RequestUpdateUser(BaseUserSchema):
     password: str | None = None
 
 
-class ResponseUser(BaseResponseSchema, BaseUserSchema):
+class UserSchema(BaseResponseSchema, BaseUserSchema):
     id: int
     hashed_password: str
 
 
 class ListUsers(BaseModel):
-    results: List[ResponseUser]
+    results: List[UserSchema]

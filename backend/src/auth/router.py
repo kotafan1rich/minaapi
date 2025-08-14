@@ -4,7 +4,7 @@ from src.auth.schemas import RequestAuth, Token
 from src.auth.utils import create_access_token, verify_password
 from src.db.session import get_db
 from src.users.dao import UserDAO
-from src.users.schemas import RequestUser, ResponseUser
+from src.users.schemas import RequestUser, UserSchema
 from src.users.utils import _create_user
 from src.config import settings
 
@@ -12,11 +12,11 @@ from src.config import settings
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@auth_router.post("/register", response_model=ResponseUser)
+@auth_router.post("/register", response_model=UserSchema)
 async def register(data: RequestUser, db_session=Depends(get_db)):
     created_user = await _create_user(data=data, db_session=db_session)
     if created_user:
-        return ResponseUser.model_validate(created_user)
+        return UserSchema.model_validate(created_user)
 
 
 @auth_router.post("/login", response_model=Token)

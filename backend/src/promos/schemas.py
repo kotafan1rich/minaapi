@@ -4,10 +4,10 @@ from pydantic import BaseModel
 from src.schemas import BaseResponseSchema
 
 
-class ResponsePromo(BaseResponseSchema):
+class PromoSchema(BaseResponseSchema):
     id: int
     description: str
 
 
 class ListPromos(BaseModel):
-    results: List[ResponsePromo]
+    results: List[PromoSchema]

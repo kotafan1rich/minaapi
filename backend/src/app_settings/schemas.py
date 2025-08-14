@@ -3,11 +3,11 @@ from pydantic import BaseModel
 from src.schemas import BaseResponseSchema
 
 
-class ResponseSetting(BaseResponseSchema):
+class SettingSchema(BaseResponseSchema):
     id: int
     key: str
     value: float
 
 
 class ResponseSettingsList(BaseModel):
-    results: List[ResponseSetting]
+    results: List[SettingSchema]
